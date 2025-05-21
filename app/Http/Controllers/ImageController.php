@@ -1,65 +1,89 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Image;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
 
 class ImageController extends Controller
-{
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+{   public function uploadImages(Request $request) 
     {
-        //
+        $request->validate([
+            'images' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $user = $request->user();
+        $uploadedImages = [];
+
+        if ($request->hasFile('images')) 
+        {
+            foreach ($request->file('images') as $image)
+            {
+                $filename = Str::random(20) . '.' . $image->getClientOriginalExtension();
+                $path = $image->storeAs('public/images', $filename);
+
+                $uploadedImages[] = [
+                    'url' => Storage::url($path),
+                    'path' => str_replace('public/', '', $path),
+                ];
+            }
+
+            $user->Images()->createMany($uploadedImages);
+
+            return response()->json([
+                'message' => 'Images uploaded successfully',
+                'images' => $uploadedImages
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'No images were uploaded'
+        ], 400);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    public function destroyImage(\App\Models\Image $image)
+        {
+            // $user = User::find($id);
+        // if($user)
+        //     $user = $request->user();
+        //     $image = $user->images()->where('id', $id)->first();
+           
+            if ( !$image) 
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+            {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Image not found or does not belong to the user',
+                    'data' => $image
+                ], 404); 
+            }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Image $image)
-    {
-        //
-    }
+            $filePath = 'private/public/images' . basename($image->path);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Image $image)
-    {
-        //
-    }
+            if (Storage::disk('local')->exists($image->path)) 
+            {
+                Storage::disk('local')->delete($image->path);
+            }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Image $image)
-    {
-        //
-    }
+            $image->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Image $image)
-    {
-        //
-    }
+            return response()->json([
+            'status' => 'success',
+            'message' => 'Image deleted successfully',
+   
+            ]);
+
+        }
+
 }
+
+
+
+
+    

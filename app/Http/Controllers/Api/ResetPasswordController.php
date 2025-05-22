@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class ResetPasswordController extends Controller
 {
-    public function reset(request $request)
+    public function reset(Request $request)
     {
         $request->validate([
             'token' => 'required',

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class ImageController extends Controller
 
-{   public function uploadImages(Request $request) 
+{   public function uploadImages(Request $request)
     {
         $request->validate([
             'images' => 'required|array',
@@ -21,7 +21,7 @@ class ImageController extends Controller
         $user = $request->user();
         $uploadedImages = [];
 
-        if ($request->hasFile('images')) 
+        if ($request->hasFile('images'))
         {
             foreach ($request->file('images') as $image)
             {
@@ -49,24 +49,19 @@ class ImageController extends Controller
 
     public function destroyImage(\App\Models\Image $image)
         {
-            // $user = User::find($id);
-        // if($user)
-        //     $user = $request->user();
-        //     $image = $user->images()->where('id', $id)->first();
-           
-            if ( !$image) 
+            if ( !$image)
 
             {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Image not found or does not belong to the user',
                     'data' => $image
-                ], 404); 
+                ], 404);
             }
 
             $filePath = 'private/public/images' . basename($image->path);
 
-            if (Storage::disk('local')->exists($image->path)) 
+            if (Storage::disk('local')->exists($image->path))
             {
                 Storage::disk('local')->delete($image->path);
             }
@@ -76,7 +71,7 @@ class ImageController extends Controller
             return response()->json([
             'status' => 'success',
             'message' => 'Image deleted successfully',
-   
+
             ]);
 
         }
@@ -86,4 +81,4 @@ class ImageController extends Controller
 
 
 
-    
+

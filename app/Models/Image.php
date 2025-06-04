@@ -12,8 +12,15 @@ class Image extends Model
     protected $fillable = [
         'url',
         'path',
-        'user_id'
+        'user_id',
+         'uid',
+        
 
+    ];
+     protected $hidden = [
+        
+        'id',
+        
     ];
 
     Public function user():BelongsTo {

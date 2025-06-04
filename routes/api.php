@@ -12,14 +12,17 @@ use App\Http\Controllers\ProfileController as ControllersProfileController;
 Route::post('register',[RegisterController::class, 'register']);
 Route::post('login',[ControllersLoginController::class, 'login']);
 Route::post('forgot-password',[NewPasswordController::class,'forgotPassword']);
- Route::post('reset', [ResetPasswordController::class, 'reset']);
+Route::post('reset', [ResetPasswordController::class, 'reset']);
 
 Route::middleware(['auth:sanctum'])->group(function(){
 
 Route::get('user',[ControllersProfileController::class, 'userProfile']);
 Route::post('upload-images',[ImageController::class,'uploadImages']);
-Route::delete('users/{user}/delete',[ControllersProfileController::class, 'destroy']);
-Route::delete('image/{image}/delete',[ImageController::class, 'destroyImage']);
+Route::post('logout', [ControllersLoginController::class, 'logout']);
+Route::delete('users/{user:uid}/delete',[ControllersProfileController::class, 'destroy']);
+Route::delete('image/{uid}/delete',[ImageController::class, 'destroyImage']);
+Route::get('get-images', [ImageController::class, 'getImages']);
+Route::get('getUserImage/{uid}',[ImageController::class, 'userImage']);
 
 });
 // Route::get('/user', '', 'index')->middleware('auth:sanctum');

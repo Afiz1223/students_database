@@ -31,8 +31,9 @@ class ProfileController extends Controller
 
     public function destroy(User $user)
 
-    {  
-            if (! $user) {
+    {
+            if (!$user)
+            {
                 return response()->json([
                 'status' => 'error',
                 'message' => 'User not found'

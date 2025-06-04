@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Image;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -18,18 +19,19 @@ class ImageController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        $user = $request->user();
-        $uploadedImages = [];
+            $user = $request->user();
+            $uploadedImages = [];
 
         if ($request->hasFile('images'))
         {
             foreach ($request->file('images') as $image)
             {
-                $filename = Str::random(20) . '.' . $image->getClientOriginalExtension();
+                $filename = Str::random(10) . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('public/images', $filename);
 
                 $uploadedImages[] = [
-                    'url' => Storage::url($path),
+                    'uid' => Str::uuid(),
+                    'url' =>url (Storage::url($path)),
                     'path' => str_replace('public/', '', $path),
                 ];
             }
@@ -45,6 +47,12 @@ class ImageController extends Controller
         return response()->json([
             'message' => 'No images were uploaded'
         ], 400);
+    }
+    public function userImage(Request $request, $uid)
+
+    {
+        $image = $request->user()->images()->where('uid', $uid)->firstOrFail();
+    return response()->json(['images' => $image]);
     }
 
     public function destroyImage(\App\Models\Image $image)
@@ -73,6 +81,13 @@ class ImageController extends Controller
             'message' => 'Image deleted successfully',
 
             ]);
+
+        }
+
+        public function getImages(Request $request)
+        {
+
+                return Auth::user()->image;
 
         }
 
